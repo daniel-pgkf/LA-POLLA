@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Polla Más Grande del Mundo 2026 — Companion App</title>
+  <!-- Google Fonts (fallback + body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- KaTeX para fórmulas matemáticas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <!-- Banderas (los emoji de bandera no se ven en Chrome/Windows) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+  <!-- Vanilla CSS Styles -->
+  <link rel="stylesheet" href="index.css?v=17">
+</head>
+<body>
+  <!-- Background Ambient Glows -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+
+  <!-- Header Section -->
+  <header class="site-header">
+    <!-- Topographic pattern overlay -->
+    <div class="header-topo"></div>
+    <div class="header-container">
+      <div class="brand-block">
+        <img id="header-logo" src="assets/rooster_color.png" alt="Gallo" class="brand-rooster">
+        <div class="brand-text">
+          <span class="brand-eyebrow"><i class="fa-solid fa-crown"></i> Edición Mundial · 2026</span>
+          <h1 class="brand-title">
+            <span class="brand-title-lg">LA POLLA</span>
+            <span class="brand-title-md">más grande del mundo</span>
+          </h1>
+          <span class="brand-sub">Companion App · Partidos, Posiciones &amp; Premios en Vivo</span>
+        </div>
+        <img src="assets/trophy_emblem.png" alt="Trofeo" class="brand-trophy">
+      </div>
+
+      <!-- Live Stats bar -->
+      <div class="quick-stats">
+        <div class="stat-card" id="stat-players">
+          <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Jugadores</div>
+          </div>
+        </div>
+        <div class="stat-card" id="stat-pot-b">
+          <div class="stat-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">$0</div>
+            <div class="stat-label">Bolsa Principal (B)</div>
+          </div>
+        </div>
+        <div class="stat-card" id="stat-pot-c">
+          <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-info">
+            <div class="stat-value">$0</div>
+            <div class="stat-label">Bolsa Comisiones (C)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <a href="#dashboard" class="nav-link active" data-target="view-dashboard">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+      </a>
+      <a href="#matches" class="nav-link" data-target="view-matches">
+        <i class="fa-solid fa-futbol"></i> Partidos
+      </a>
+      <a href="#standings" class="nav-link" data-target="view-standings">
+        <i class="fa-solid fa-ranking-star"></i> Posiciones
+      </a>
+      <a href="#prizes" class="nav-link" data-target="view-prizes">
+        <i class="fa-solid fa-coins"></i> Premios Actuales
+      </a>
+      <a href="#participants" class="nav-link" data-target="view-participants">
+        <i class="fa-solid fa-id-card"></i> Participantes
+      </a>
+      <a href="#rules" class="nav-link" data-target="view-rules">
+        <i class="fa-solid fa-book-open"></i> Reglamento
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+    
+    <!-- DASHBOARD VIEW -->
+    <section id="view-dashboard" class="view-section active">
+      <!-- Hero Banner -->
+      <div class="dash-hero">
+        <div class="dash-hero-bg"></div>
+        <div class="dash-hero-content">
+          <span class="dash-hero-eyebrow"><i class="fa-solid fa-fire"></i> El Mundial 2026 ya está en marcha</span>
+          <h1 class="dash-hero-title">El destino ya se subastó. Ahora toca verlo rodar.</h1>
+          <p class="dash-hero-sub">Consulta los próximos partidos y sus dueños, sigue las tablas de posiciones y revisa cómo va repartiéndose la bolsa a medida que avanza el torneo.</p>
+          <div class="dash-hero-actions">
+            <a href="#matches" class="btn btn-primary btn-lg" data-target="view-matches"><i class="fa-solid fa-futbol"></i> Ver Partidos</a>
+            <a href="#standings" class="btn btn-secondary btn-lg" data-target="view-standings"><i class="fa-solid fa-ranking-star"></i> Ver Posiciones</a>
+          </div>
+        </div>
+        <img src="assets/rooster_color.png" alt="" class="dash-hero-rooster">
+        <img src="assets/trophy_emblem.png" alt="" class="dash-hero-trophy">
+      </div>
+
+      <div class="section-header">
+        <h1>Dashboard General</h1>
+        <p>Resumen del estado actual de la polla y la subasta.</p>
+      </div>
+
+      <div class="grid-layout cols-3">
+        <!-- Main Stats Summary -->
+        <div class="panel summary-panel glass">
+          <h2><i class="fa-solid fa-circle-info text-gold"></i> Resumen de Valores</h2>
+          <div class="summary-list">
+            <div class="summary-item">
+              <span class="label">Presupuesto por Jugador (P):</span>
+              <span class="value" id="val-p-budget">$50.000</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Comisión por Jugador (C):</span>
+              <span class="value" id="val-c-fee">$10.000</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total por Jugador (P + C):</span>
+              <span class="value" id="val-total-fee">$60.000</span>
+            </div>
+            <div class="summary-item divider"></div>
+            <div class="summary-item highlight">
+              <span class="label">Bolsa Total Acumulada:</span>
+              <span class="value text-gold" id="val-total-pot">$0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subsidized Teams Panel -->
+        <div class="panel glass">
+          <h2><i class="fa-solid fa-star text-gold"></i> Equipos Subsidiados</h2>
+          <p class="panel-subtitle">Sorteados antes de la subasta (ponderación inversa al ranking FIFA).</p>
+          <div class="subsidies-display" id="dashboard-subsidies">
+            <div class="no-data">Cargando...</div>
+          </div>
+        </div>
+
+        <!-- Special Prizes Panel -->
+        <div class="panel glass">
+          <h2><i class="fa-solid fa-trophy text-gold"></i> Premios Especiales</h2>
+          <p class="panel-subtitle">Cada uno recibe una parte de la bolsa de comisiones.</p>
+          <div class="prizes-display">
+            <div class="prize-card-mini">
+              <div class="prize-icon"><i class="fa-solid fa-poo"></i></div>
+              <div class="prize-info">
+                <h3>Peor Equipo</h3>
+                <p>Peor registro en fase de grupos.</p>
+                <span class="prize-tag" id="prize-worst-val">1/3 de Bolsa C</span>
+              </div>
+            </div>
+            <div class="prize-card-mini">
+              <div class="prize-icon"><i class="fa-solid fa-medal"></i></div>
+              <div class="prize-info">
+                <h3>Mejor 3er Clasificado</h3>
+                <p>Mejor de los 8 terceros del R32.</p>
+                <span class="prize-tag" id="prize-best3rd-val">1/3 de Bolsa C</span>
+              </div>
+            </div>
+            <div class="prize-card-mini">
+              <div class="prize-icon"><i class="fa-solid fa-fire"></i></div>
+              <div class="prize-info">
+                <h3>Mayor Goleada</h3>
+                <p>Dueño del equipo goleado.</p>
+                <span class="prize-tag" id="prize-goleada-val">1/3 de Bolsa C</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-layout cols-2 margin-top">
+        <!-- Equipos y dueños -->
+        <div class="panel glass">
+          <h2><i class="fa-solid fa-shield-halved text-gold"></i> Equipos y Dueños</h2>
+          <div class="table-wrapper">
+            <table class="data-table" id="table-sold-teams">
+              <thead>
+                <tr>
+                  <th>Equipo</th>
+                  <th>Dueño(s)</th>
+                  <th>% Bolsa B actual</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="4" class="text-center">Cargando...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Resumen participantes -->
+        <div class="panel glass">
+          <h2><i class="fa-solid fa-ranking-star text-gold"></i> Tabla de Participantes</h2>
+          <div class="table-wrapper">
+            <table class="data-table" id="table-dashboard-players">
+              <thead>
+                <tr>
+                  <th>Participante</th>
+                  <th>Equipos</th>
+                  <th>Ganancia Actual (B)</th>
+                  <th>Subsidios + Premios (C)</th>
+                  <th>Total Actual</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="5" class="text-center">Cargando...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MATCHES VIEW -->
+    <section id="view-matches" class="view-section">
+      <div class="section-header">
+        <h1>Partidos del Mundial</h1>
+        <p>Próximos enfrentamientos en horario colombiano, ordenados por proximidad, con sus dueños.</p>
+      </div>
+
+      <!-- Filtros -->
+      <div class="matches-toolbar">
+        <div class="matches-filters" id="matches-phase-filters">
+          <button class="chip-filter active" data-filter="proximos">Próximos</button>
+          <button class="chip-filter" data-filter="resultados">Resultados</button>
+          <button class="chip-filter" data-filter="mios">De la Polla</button>
+          <button class="chip-filter" data-filter="todos">Todos</button>
+          <button class="chip-filter" data-filter="grupos">Grupos</button>
+          <button class="chip-filter" data-filter="eliminatorias">Eliminatorias</button>
+        </div>
+        <div class="matches-count" id="matches-count"></div>
+      </div>
+
+      <!-- Próximo partido destacado -->
+      <div id="next-match-hero"></div>
+
+      <!-- Lista de partidos -->
+      <div class="matches-list" id="matches-list"></div>
+    </section>
+
+    <!-- RULES VIEW -->
+    <section id="view-rules" class="view-section">
+      <div class="section-header">
+        <h1>Reglamento de la Polla</h1>
+        <p>Estructura general, distribución de bolsas, bonos por residuo y subsidios.</p>
+      </div>
+
+      <div class="rules-container">
+        <!-- Columns layout -->
+        <div class="grid-layout cols-2">
+          <!-- Col 1 -->
+          <div class="rules-card glass">
+            <h2>1. Distribución de la Bolsa Principal (B)</h2>
+            <p>La Bolsa Principal es la suma del dinero gastado en la subasta: \( B = \sum \text{Subastado}_i \). Los equipos eliminados en fase de grupos (16 equipos) generan <strong>$0</strong>. Los 32 restantes reparten el 100% de la bolsa según esta escala:</p>
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Posición Deportiva</th>
+                  <th>Equipos</th>
+                  <th>% por Equipo</th>
+                  <th>% Total Nivel</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Campeón</td>
+                  <td>1</td>
+                  <td class="text-gold bold">20.00%</td>
+                  <td>20.0%</td>
+                </tr>
+                <tr>
+                  <td>Subcampeón</td>
+                  <td>1</td>
+                  <td class="text-gold bold">12.50%</td>
+                  <td>12.5%</td>
+                </tr>
+                <tr>
+                  <td>3er Puesto</td>
+                  <td>1</td>
+                  <td class="text-gold bold">10.00%</td>
+                  <td>10.0%</td>
+                </tr>
+                <tr>
+                  <td>4to Puesto</td>
+                  <td>1</td>
+                  <td class="text-gold bold">7.50%</td>
+                  <td>7.5%</td>
+                </tr>
+                <tr>
+                  <td>Eliminados en Cuartos</td>
+                  <td>4</td>
+                  <td class="text-gold bold">4.148%</td>
+                  <td>16.6%</td>
+                </tr>
+                <tr>
+                  <td>Eliminados en Octavos</td>
+                  <td>8</td>
+                  <td class="text-gold bold">2.074%</td>
+                  <td>16.6%</td>
+                </tr>
+                <tr>
+                  <td>Eliminados en R32 (16avos)</td>
+                  <td>16</td>
+                  <td class="text-gold bold">1.037%</td>
+                  <td>16.6%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Col 2 -->
+          <div class="rules-card glass">
+            <h2>2. Propuesta Contra Residuo (Bono de Ahorro)</h2>
+            <p>Para compensar a los jugadores que ahorran dinero de su presupuesto (no gastan sus \( P \)), se redistribuyen los residuos en forma de bonos de porcentaje extra:</p>
+            <ul>
+              <li><strong>Residuo del Jugador (\( R_i \)):</strong> Dinero no gastado del presupuesto base \( P \).</li>
+              <li><strong>Proporción (\( t_i \)):</strong> \( t_i = R_i / R_{max} \), donde \( R_{max} \) es el residuo más alto de la subasta.</li>
+              <li><strong>Bono (\( B_i \)):</strong> \( B_i = t_i \times 3\% \). El jugador con el mayor residuo recibe un bono del <strong>3.0%</strong>.</li>
+            </ul>
+            <div class="math-display">
+              $$ p_k' = p_k\left(1 - \frac{T}{100}\right) + \Delta_k $$
+            </div>
+            <p class="formula-caption">Porcentaje ajustado por posición tras aplicar los bonos activados.</p>
+            <div class="note-box warning">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <strong>Regla de Activación:</strong> Cada jugador debe asignar su bono a uno de sus equipos <strong>antes de que inicie el torneo</strong>. El bono solo se activa si el equipo supera la fase de grupos. Si es eliminado, el bono se pierde.
+            </div>
+
+            <h2>3. Bolsa de Comisiones (C) y Subsidios</h2>
+            <p>Compuesta por la cuota de comisiones \( C_{total} = C \times n \). Se divide en partes iguales entre los <strong>3 Premios Especiales</strong> y los equipos subsidiados que superen la fase de grupos (\( V \)):</p>
+            <div class="math-display">
+              $$ \text{Partes} = 3 + V \qquad \text{Valor por parte} = \frac{C_{total}}{3 + V} $$
+            </div>
+            <ul>
+              <li><strong>Ruleta Ponderada (cuadrática):</strong> Se sortearon 3 equipos antes de la subasta. El peso de cada equipo es \( w_i = \text{pos}_i^{\,2} \), con probabilidad \( p_i = \frac{\text{pos}_i^{\,2}}{\sum_j \text{pos}_j^{\,2}} = \frac{\text{pos}_i^{\,2}}{38{,}024} \). Esto hace que los 10 peores acumulen ≈50% del total.</li>
+              <li><strong>Activación de Subsidios:</strong> Si un equipo subsidiado no supera la fase de grupos, su parte se pierde y se redistribuye proporcionalmente entre los premios y subsidios activos.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STANDINGS VIEW -->
+    <section id="view-standings" class="view-section">
+      <div class="section-header">
+        <h1>Posiciones</h1>
+        <p>Tablas de grupo y estado de la fase eliminatoria, con el dueño de cada equipo.</p>
+      </div>
+
+      <div class="data-source-indicator" id="standings-groups-indicator"></div>
+
+      <div class="grid-layout cols-2" id="standings-groups-grid">
+        <!-- Tablas de grupo generadas via JS -->
+      </div>
+
+      <div class="section-header margin-top">
+        <h1>Fase Eliminatoria</h1>
+        <p>Equipos clasificados a los 32 y su recorrido en el torneo.</p>
+      </div>
+
+      <div class="data-source-indicator" id="standings-knockout-indicator"></div>
+
+      <div class="panel glass" id="standings-knockout-container">
+        <!-- Bracket generado via JS -->
+      </div>
+    </section>
+
+    <!-- PARTICIPANTS VIEW -->
+    <section id="view-participants" class="view-section">
+      <div class="section-header">
+        <h1>Dashboard de Participantes</h1>
+        <p>Consulta el estado financiero de cada jugador y asigna sus bonificaciones de residuos.</p>
+      </div>
+
+      <div class="note-box warning margin-bottom">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <strong>Bono de Residuo:</strong> el porcentaje extra (<i>Δ</i>) ya fue asignado por cada participante a uno de sus equipos antes del torneo. Solo se activa si ese equipo supera la fase de grupos.
+      </div>
+
+      <div class="participants-container" id="participants-cards-container">
+        <!-- Loaded via JS -->
+        <div class="no-data">Cargando...</div>
+      </div>
+    </section>
+
+    <!-- PREMIOS ACTUALES VIEW -->
+    <section id="view-prizes" class="view-section">
+      <div class="section-header">
+        <h1>Premios Actuales</h1>
+        <p>Cálculo en vivo de cómo se reparte la bolsa según el estado actual del torneo.</p>
+      </div>
+
+      <div class="grid-layout cols-12">
+        <!-- Stats box -->
+        <div class="col-span-4 panel glass border-gold">
+          <h2><i class="fa-solid fa-coins text-gold"></i> Resumen de Bolsas</h2>
+          <div class="payout-stats-box margin-top">
+            <div class="payout-row">
+              <span>Bolsa Principal B:</span>
+              <strong id="pay-total-b">$0</strong>
+            </div>
+            <div class="payout-row">
+              <span>Bolsa Comisiones C:</span>
+              <strong id="pay-total-c">$0</strong>
+            </div>
+            <div class="payout-row divider"></div>
+            <div class="payout-row">
+              <span>Subsidios Activos (V):</span>
+              <strong id="pay-active-v">0</strong>
+            </div>
+            <div class="payout-row">
+              <span>Valor por Parte (C / (3 + V)):</span>
+              <strong id="pay-part-val">$0</strong>
+            </div>
+            <div class="payout-row divider"></div>
+            <div class="payout-row">
+              <span>Bono Total Activado (T):</span>
+              <strong id="pay-total-t">0%</strong>
+            </div>
+          </div>
+
+          <div class="prizes-display margin-top" id="special-prizes-status">
+            <!-- Loaded via JS -->
+          </div>
+        </div>
+
+        <!-- Per-participant winnings -->
+        <div class="col-span-8 panel glass">
+          <h2><i class="fa-solid fa-trophy text-gold"></i> Ganancias Actuales por Participante</h2>
+          <p class="panel-subtitle">Se recalcula automáticamente con los resultados disponibles. No representa el pago final hasta que termine el torneo.</p>
+          <div class="player-payouts-list margin-top" id="payout-results-container">
+            <div class="no-data">Cargando...</div>
+          </div>
+        </div>
+
+        <!-- Árbol del torneo (foto actual) -->
+        <div class="col-span-12 panel glass">
+          <h2><i class="fa-solid fa-sitemap text-gold"></i> Árbol del Torneo (foto actual)</h2>
+          <p class="panel-subtitle">Así se vería el reparto de la Bolsa B si el torneo terminara hoy: los 32 clasificados actuales (2 mejores de cada grupo + mejores terceros) ocupan el R32, con el % que les corresponde. Las siguientes rondas se llenan a medida que se juegan.</p>
+          <div class="bracket-tree margin-top" id="prizes-bracket-tree">
+            <div class="no-data">Cargando...</div>
+          </div>
+          <div class="bracket-eliminated margin-top" id="prizes-bracket-eliminated"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p><i class="fa-solid fa-trophy text-gold"></i> La Polla Más Grande del Mundo &copy; 2026 · Diseñada para el Mundial FIFA 2026 · <span class="text-gold">¡Que gane el mejor gallo!</span></p>
+  </footer>
+
+  <!-- Toast notifications container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- App JS Logic -->
+  <script src="teams.js?v=10"></script>
+  <script src="matches.js?v=9"></script>
+  <script src="config.js?v=10"></script>
+  <script src="results.js?v=9"></script>
+  <script src="external-api.js?v=9"></script>
+  <script src="app.js?v=20"></script>
+</body>
+</html>

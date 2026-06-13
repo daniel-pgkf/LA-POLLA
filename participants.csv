@@ -1,0 +1,83 @@
+team_id,owner_name,photo,share,subsidized,bonus_team,bonus_pct
+francia,Sebastian Sanchez,assets/players/sebastians.jpeg,0.5,no,yes,3.2
+francia,Martin Calderon,assets/players/martinc.jpeg,0.5,no,yes,3.2
+espana,Manuel Giraldo,assets/players/manuelg.jpeg,0.5,no,yes,3.9
+espana,Juan Pablo Castro,assets/players/juanc.jpeg,0.5,no,yes,3.9
+argentina,Santiago Goyes,assets/players/santiagog.jpeg,0.5,no,yes,4
+argentina,Juan Esteban Ibagué,assets/players/juani.jpeg,0.5,no,yes,4
+portugal,Stefania Alvarez,assets/players/stefaniaa.jpeg,0.5,no,yes,4.5
+portugal,Sofia Ossa,assets/players/sofiao.jpeg,0.5,no,yes,4.5
+brasil,Tatiana Silva,assets/players/tatianas.jpeg,0.5,no,yes,1.3
+brasil,Camila Goyes,assets/players/camilag.jpeg,0.5,no,yes,1.3
+marruecos,Andrea Londoño,assets/players/andreal.jpeg,1,no,yes,1.3
+belgica,Silvana Molano e Isabella Alvear,assets/players/silvisa.jpeg,0.5,no,yes,2.4
+belgica,Juliana Valbuena,assets/players/julianav.jpeg,0.5,no,yes,2.4
+alemania,Juan Pablo Castro,assets/players/juanc.jpeg,0.5,no,yes,3.9
+alemania,Manuel Giraldo,assets/players/manuelg.jpeg,0.5,no,yes,3.9
+croacia,Juliana Valbuena,assets/players/julianav.jpeg,1.0,no,yes,2.1
+colombia,Raul Insuasty,assets/players/rauli.jpeg,0.5,no,no,0
+colombia,Juan Felipe Hernandez y Alexia,assets/players/justmarried.jpeg,0.5,no,no,0
+senegal,Daniel Romero,assets/players/danielr.jpeg,0.5,no,no,0
+senegal,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+mexico,Daniel Romero,assets/players/danielr.jpeg,0.5,no,no,0
+mexico,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+usa,Daniel Romero,assets/players/danielr.jpeg,0.5,no,no,0
+usa,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+uruguay,Daniel Romero,assets/players/danielr.jpeg,0.5,no,yes,3.2
+uruguay,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,yes,3.2
+japon,Santiago Goyes,assets/players/santiagog.jpeg,0.5,no,no,0
+japon,Juan Esteban Ibagué,assets/players/juani.jpeg,0.5,no,no,0
+suiza,Santiago Goyes,assets/players/santiagog.jpeg,0.5,no,no,0
+suiza,Juan Esteban Ibagué,assets/players/juani.jpeg,0.5,no,no,0
+iran,Stefania Alvarez,assets/players/stefaniaa.jpeg,0.5,no,no,0
+iran,Sofia Ossa,assets/players/sofiao.jpeg,0.5,no,no,0
+turquia,Daniel Romero,assets/players/danielr.jpeg,1.0,no,no,0
+ecuador,Raul Insuasty,assets/players/rauli.jpeg,0.5,no,no,0
+ecuador,Juan Felipe Hernandez y Alexia,assets/players/justmarried.jpeg,0.5,no,no,0
+austria,Andrea Londoño,assets/players/andreal.jpeg,0.5,no,no,0
+austria,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+corea_sur,Andrea Londoño,assets/players/andreal.jpeg,1.0,no,no,0
+australia,Stefania Alvarez,assets/players/stefaniaa.jpeg,0.5,no,no,0
+australia,Sofia Ossa,assets/players/sofiao.jpeg,0.5,no,no,0
+argelia,Juan Esteban Ibagué,assets/players/juani.jpeg,1.0,no,no,0
+egipto,Sebastian Sanchez,assets/players/sebastians.jpeg,0.5,no,no,0
+egipto,Martin Calderon,assets/players/martinc.jpeg,0.5,no,no,0
+canada,Camila Goyes,assets/players/camilag.jpeg,1.0,no,yes,0.9
+noruega,Silvana Molano e Isabella Alvear,assets/players/silvisa.jpeg,0.5,no,no,0
+noruega,Juliana Valbuena,assets/players/julianav.jpeg,0.5,no,no,0
+panama,Daniel Romero,assets/players/danielr.jpeg,0.5,no,no,0
+panama,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+costa_marfil,Raul Insuasty,assets/players/rauli.jpeg,0.5,no,no,0
+costa_marfil,Juan Felipe Hernandez y Alexia,assets/players/justmarried.jpeg,0.5,no,no,0
+suecia,Daniel Romero,assets/players/danielr.jpeg,0.5,no,no,0
+suecia,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+paraguay,Pedro Ruiz,assets/players/pedror.jpeg,1.0,no,yes,0.2
+chequia,Pedro Ruiz,assets/players/pedror.jpeg,1.0,no,no,0
+escocia,Stefania Alvarez,assets/players/stefaniaa.jpeg,0.5,no,no,0
+escocia,Sofia Ossa,assets/players/sofiao.jpeg,0.5,no,no,0
+tunez,Pedro Ruiz,assets/players/pedror.jpeg,1.0,no,no,0
+rd_congo,Tatiana Silva,assets/players/tatianas.jpeg,0.5,no,no,0
+rd_congo,Camila Goyes,assets/players/camilag.jpeg,0.5,no,no,0
+uzbekistan,Pedro Ruiz,assets/players/pedror.jpeg,1.0,no,no,0
+qatar,Pedro Ruiz,assets/players/pedror.jpeg,1.0,yes,no,0
+irak,Silvana Molano e Isabella Alvear,assets/players/silvisa.jpeg,1,no,no,0
+sudafrica,Santiago Goyes,assets/players/santiagog.jpeg,0.5,no,no,0
+sudafrica,Juan Esteban Ibagué,assets/players/juani.jpeg,0.5,no,no,0
+arabia_saudita,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+arabia_saudita,Andrea Londoño,assets/players/andreal.jpeg,0.5,no,no,0
+jordania,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+jordania,Andrea Londoño,assets/players/andreal.jpeg,0.5,no,no,0
+bosnia,Pedro Ruiz,assets/players/pedror.jpeg,0.5,no,no,0
+bosnia,Silvana Molano e Isabella Alvear,assets/players/silvisa.jpeg,0.5,no,no,0
+cabo_verde,Pedro Ruiz,assets/players/pedror.jpeg,0.5,no,no,0
+cabo_verde,Silvana Molano e Isabella Alvear,assets/players/silvisa.jpeg,0.5,no,no,0
+ghana,Sebastian Sanchez,assets/players/sebastians.jpeg,0.5,yes,no,0
+ghana,Martin Calderon,assets/players/martinc.jpeg,0.5,yes,no,0
+curazao,Pedro Ruiz,assets/players/pedror.jpeg,1.0,no,no,0
+haiti,Juan Manuel Martinez,assets/players/juanm.jpeg,0.5,no,no,0
+haiti,Andrea Londoño,assets/players/andreal.jpeg,0.5,no,no,0
+nueva_zelanda,Tatiana Silva,assets/players/tatianas.jpeg,1.0,yes,no,0
+inglaterra,Juan Felipe Hernandez y Alexia,assets/players/justmarried.jpeg,0.5,no,yes,1.2
+inglaterra,Raul Insuasty,assets/players/rauli.jpeg,0.5,no,yes,1.2
+paises_bajos,Camila Goyes,assets/players/camilag.jpeg,0.5,no,no,0
+paises_bajos,Tatiana Silva,assets/players/tatianas.jpeg,0.5,no,no,0

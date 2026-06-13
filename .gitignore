@@ -1,0 +1,10 @@
+# Configuración local de Claude Code (no compartir)
+.claude/settings.local.json
+
+# Imágenes de referencia/diseño, no usadas por el sitio (muy pesadas)
+Diseños.png
+diseños 2.png
+diseños 3.png
+logofinal.png
+logomundial.png
+pollofinal.png
