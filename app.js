@@ -633,25 +633,45 @@ function calculateCurrentPrizes() {
 
   const perParticipant = {};
   PARTICIPANTS.forEach(p => {
-    perParticipant[p.name] = { name: p.name, photo: p.photo, grossB: 0, extraC: 0, total: 0 };
+    perParticipant[p.name] = {
+      name: p.name, photo: p.photo, grossB: 0, extraC: 0, total: 0,
+      teamBreakdown: [], subsidyBreakdown: [], specialBreakdown: []
+    };
   });
 
   PARTICIPANTS.forEach(p => {
     p.teams.forEach(t => {
       const pct = adjustedPct[t.teamId] || 0;
-      perParticipant[p.name].grossB += (pct / 100) * CONFIG.TOTAL_B * t.share;
+      const amount = (pct / 100) * CONFIG.TOTAL_B * t.share;
+      perParticipant[p.name].grossB += amount;
+      perParticipant[p.name].teamBreakdown.push({
+        teamId: t.teamId,
+        share: t.share,
+        pct,
+        amount,
+        bonusPct: (t.bonusTeam && t.bonusPct > 0 && QUALIFIED_IDS.includes(t.teamId)) ? t.bonusPct : 0
+      });
 
       if (activeSubsidies.includes(t.teamId)) {
-        perParticipant[p.name].extraC += partValue * t.share;
+        const subAmount = partValue * t.share;
+        perParticipant[p.name].extraC += subAmount;
+        perParticipant[p.name].subsidyBreakdown.push({ teamId: t.teamId, share: t.share, amount: subAmount });
       }
     });
   });
 
   // Premios especiales: se reparten según la propiedad (con share) del equipo ganador.
-  [special.worstTeamId, special.best3rdTeamId, special.goleadaTeamId].forEach(teamId => {
+  [
+    { teamId: special.worstTeamId, label: "Peor Equipo (Grupos)" },
+    { teamId: special.best3rdTeamId, label: "Mejor 3ro Clasificado" },
+    { teamId: special.goleadaTeamId, label: "Mayor Goleada" }
+  ].forEach(({ teamId, label }) => {
     if (!teamId) return;
     getTeamOwners(teamId).forEach(o => {
-      if (perParticipant[o.owner]) perParticipant[o.owner].extraC += partValue * o.share;
+      if (!perParticipant[o.owner]) return;
+      const amount = partValue * o.share;
+      perParticipant[o.owner].extraC += amount;
+      perParticipant[o.owner].specialBreakdown.push({ teamId, label, share: o.share, amount });
     });
   });
 
@@ -1262,7 +1282,7 @@ function renderPrizesPage() {
   container.innerHTML = sorted.map(pp => {
     const participant = PARTICIPANTS.find(p => p.name === pp.name);
     return `
-      <div class="player-payout-item">
+      <div class="player-payout-item clickable" data-participant="${pp.name}" tabindex="0" role="button">
         <div class="payout-item-header">
           <div class="with-avatar">
             ${renderAvatar(participant, "lg")}
@@ -1274,11 +1294,117 @@ function renderPrizesPage() {
           <div><span>Bolsa B (deportivo):</span> <strong>${formatCurrency(pp.grossB)}</strong></div>
           <div><span>Subsidios + Premios C:</span> <strong>${formatCurrency(pp.extraC)}</strong></div>
         </div>
+        <div class="payout-item-hint"><i class="fa-solid fa-magnifying-glass"></i> Ver detalle</div>
       </div>
     `;
   }).join("");
 
+  // Click en una fila abre el modal con el detalle de esa persona.
+  container.onclick = (e) => {
+    const item = e.target.closest(".player-payout-item");
+    if (!item) return;
+    openPayoutDetail(item.getAttribute("data-participant"), prizes);
+  };
+  container.onkeydown = (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const item = e.target.closest(".player-payout-item");
+    if (!item) return;
+    e.preventDefault();
+    openPayoutDetail(item.getAttribute("data-participant"), prizes);
+  };
+
   renderBracketTree(prizes.adjustedPct);
+}
+
+// ==========================================================================
+// MODAL: detalle de ganancias de un participante
+// ==========================================================================
+
+// Fila de detalle: nombre del equipo (con bandera) + monto que aporta.
+function payoutDetailRow(iconHtml, labelHtml, amount, extraHtml = "") {
+  return `
+    <div class="payout-detail-row">
+      <span class="payout-detail-label">${iconHtml} ${labelHtml}${extraHtml}</span>
+      <span class="payout-detail-amount">${formatCurrency(amount)}</span>
+    </div>
+  `;
+}
+
+function openPayoutDetail(participantName, prizes) {
+  const pp = prizes.perParticipant.find(x => x.name === participantName);
+  if (!pp) return;
+  const participant = PARTICIPANTS.find(p => p.name === participantName);
+
+  const teamRows = pp.teamBreakdown.map(tb => {
+    const team = getTeamById(tb.teamId);
+    const status = KNOCKOUT_STATUS[tb.teamId];
+    const stage = stageLabel(status ? status.stage : "eliminado_grupos");
+    const shareTag = tb.share < 1 ? ` <small class="text-muted">(copropiedad ${Math.round(tb.share * 100)}%)</small>` : "";
+    const bonusTag = tb.bonusPct > 0 ? ` <span class="badge-bonus">⚡ Bono +${tb.bonusPct}%</span>` : "";
+    const pctTag = tb.amount > 0 ? ` <small class="text-muted">(${tb.pct.toFixed(3)}% de Bolsa B)</small>` : "";
+    return payoutDetailRow(
+      flagIcon(team),
+      `${team.name}${shareTag} <small class="text-muted">— ${stage}</small>${bonusTag}`,
+      tb.amount,
+      pctTag
+    );
+  }).join("");
+
+  const subsidyRows = pp.subsidyBreakdown.map(sb => {
+    const team = getTeamById(sb.teamId);
+    const shareTag = sb.share < 1 ? ` <small class="text-muted">(copropiedad ${Math.round(sb.share * 100)}%)</small>` : "";
+    return payoutDetailRow(
+      `<i class="fa-solid fa-hand-holding-dollar icon-subsidy"></i>`,
+      `Subsidio activo: ${team.name}${shareTag}`,
+      sb.amount
+    );
+  }).join("");
+
+  const specialRows = pp.specialBreakdown.map(sp => {
+    const team = getTeamById(sp.teamId);
+    const shareTag = sp.share < 1 ? ` <small class="text-muted">(copropiedad ${Math.round(sp.share * 100)}%)</small>` : "";
+    return payoutDetailRow(
+      `<i class="fa-solid fa-medal icon-special"></i>`,
+      `${sp.label}: ${team.name}${shareTag}`,
+      sp.amount
+    );
+  }).join("");
+
+  const extraCSection = (subsidyRows || specialRows)
+    ? subsidyRows + specialRows
+    : `<p class="no-data-inline text-muted">Sin subsidios ni premios especiales por ahora.</p>`;
+
+  const content = document.getElementById("payout-detail-content");
+  content.innerHTML = `
+    <div class="payout-detail-header">
+      ${renderAvatar(participant, "xl")}
+      <div>
+        <h3>${pp.name}</h3>
+        <span class="payout-detail-total">${formatCurrency(pp.total)}</span>
+      </div>
+    </div>
+
+    <div class="payout-detail-section">
+      <h4><i class="fa-solid fa-futbol text-gold"></i> Bolsa B — por equipo <span class="payout-detail-subtotal">${formatCurrency(pp.grossB)}</span></h4>
+      ${teamRows || `<p class="no-data-inline text-muted">No tiene equipos.</p>`}
+    </div>
+
+    <div class="payout-detail-section">
+      <h4><i class="fa-solid fa-coins text-gold"></i> Bolsa C — subsidios y premios <span class="payout-detail-subtotal">${formatCurrency(pp.extraC)}</span></h4>
+      ${extraCSection}
+    </div>
+
+    <div class="payout-detail-row payout-detail-total-row">
+      <span>Ganancia actual total</span>
+      <span class="payout-detail-amount">${formatCurrency(pp.total)}</span>
+    </div>
+  `;
+
+  document.getElementById("payout-detail-overlay").classList.add("active");
+}
+
+function closePayoutDetail() {
+  document.getElementById("payout-detail-overlay").classList.remove("active");
 }
 
 // Subsidio activo y/o bono de residuo asignados a un equipo (si los tiene).
@@ -1523,6 +1649,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (navLink) navLink.click();
     });
   });
+
+  // -----------------------------------------------------------
+  // Modal de detalle de ganancias (Premios Actuales)
+  // -----------------------------------------------------------
+  const payoutOverlay = document.getElementById("payout-detail-overlay");
+  if (payoutOverlay) {
+    document.getElementById("payout-detail-close").addEventListener("click", closePayoutDetail);
+    payoutOverlay.addEventListener("click", (e) => {
+      if (e.target === payoutOverlay) closePayoutDetail();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closePayoutDetail();
+    });
+  }
 
   // -----------------------------------------------------------
   // Matches filters

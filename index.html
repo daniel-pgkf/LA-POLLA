@@ -17,7 +17,7 @@
   <!-- Banderas (los emoji de bandera no se ven en Chrome/Windows) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
   <!-- Vanilla CSS Styles -->
-  <link rel="stylesheet" href="index.css?v=17">
+  <link rel="stylesheet" href="index.css?v=18">
 </head>
 <body>
   <!-- Background Ambient Glows -->
@@ -478,6 +478,14 @@
   <!-- Toast notifications container -->
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Modal: detalle de ganancias por participante -->
+  <div class="modal-overlay" id="payout-detail-overlay">
+    <div class="modal-box panel glass border-gold">
+      <button class="modal-close" id="payout-detail-close" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <div id="payout-detail-content"><!-- Loaded via JS --></div>
+    </div>
+  </div>
+
   <!-- GSAP + ScrollTrigger -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -487,6 +495,6 @@
   <script src="config.js?v=10"></script>
   <script src="results.js?v=9"></script>
   <script src="external-api.js?v=9"></script>
-  <script src="app.js?v=20"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
