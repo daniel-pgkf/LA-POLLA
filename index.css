@@ -1987,11 +1987,38 @@ select {
 
 @media (max-width: 600px) {
   .matches-list { grid-template-columns: 1fr; }
-  .vs-flag.big { font-size: 2.6rem; }
-  .next-countdown { font-size: 1.4rem; }
-  .next-datetime strong { font-size: 1.2rem; }
-  .next-center { min-width: 100px; }
   .vs-team-name { font-size: 0.92rem; }
+
+  /* Hero "próximo partido" compacto, al tamaño de las tarjetas normales.
+     Sin esto, los nombres largos de dueños (nowrap) y los avatares xl
+     desbordaban el ancho del celular y cortaban el equipo derecho. */
+  .next-match { padding: 1.2rem 0.9rem; }
+  .next-match-head { margin-bottom: 0.9rem; }
+  .next-context { font-size: 0.68rem; }
+  .next-versus { gap: 0.4rem; }
+  .next-center { min-width: 0; }
+  .next-countdown { font-size: 1.15rem; }
+  .next-vs { font-size: 1.1rem; }
+  .next-vs.live-score { font-size: 1.4rem; }
+  .next-datetime strong { font-size: 1.05rem; }
+  .next-datetime span { font-size: 0.66rem; }
+  .next-match-foot { margin-top: 0.9rem; font-size: 0.74rem; }
+
+  .vs-team { min-width: 0; }
+  .vs-flag.big { font-size: 2.2rem; }
+  .vs-team.big .vs-team-name { font-size: 0.85rem; }
+  .vs-team.big .vs-rank { display: none; }
+  .vs-team.big .player-avatar.xl {
+    width: 46px; height: 46px; font-size: 1.05rem; border-width: 2.5px;
+  }
+  .hero-owner-stack .player-avatar + .player-avatar { margin-left: -16px; }
+  .vs-team.big .vs-owner { gap: 0.3rem; margin-top: 0.35rem; }
+  .vs-team.big .vs-owner-name {
+    max-width: 100%;
+    white-space: normal;
+    font-size: 0.66rem;
+    line-height: 1.15;
+  }
 }
 
 .vs-owner-multi {
