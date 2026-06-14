@@ -11,7 +11,10 @@
 // ==========================================================================
 
 const EXTERNAL_API_BASE = "https://worldcup26.ir";
-const EXTERNAL_API_TIMEOUT_MS = 5000;
+// El servidor es lento (fuerza renegociación TLS): /get/games tarda ~10-12s.
+// Como la carga en vivo ocurre en segundo plano (la app ya se ve con el
+// respaldo manual), damos margen amplio para que alcance a responder.
+const EXTERNAL_API_TIMEOUT_MS = 18000;
 
 // Mapeo id numérico (worldcup26.ir) -> slug de teams.js.
 // Construido cruzando /get/teams (groups A-L + nombre) con TEAMS/GROUPS de teams.js.

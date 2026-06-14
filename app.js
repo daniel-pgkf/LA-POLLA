@@ -373,13 +373,45 @@ function getTeamOwners(teamId) {
 // CARGA DE RESULTADOS Y TABLAS DE GRUPO (vivo con respaldo manual)
 // ==========================================================================
 
-async function loadResults() {
-  // Punto de partida: respaldo manual de results.js
+// Tablas de grupo en vivo ya parseadas (worldcup26.ir), o null si no hay/falló.
+let LIVE_GROUPS = null;
+
+// Recalcula GROUP_STANDINGS / QUALIFIED_IDS / KNOCKOUT_STATUS con el estado
+// actual de EFFECTIVE_RESULTS y LIVE_GROUPS. Usa la tabla en vivo si está, si
+// no la calcula desde los resultados (respaldo).
+function recomputeStandings() {
+  GROUP_STANDINGS = {};
+  Object.keys(GROUPS).forEach(g => {
+    GROUP_STANDINGS[g] = (liveGroupsOk && LIVE_GROUPS && LIVE_GROUPS[g]) ? LIVE_GROUPS[g] : computeGroupStandings(g);
+  });
+
+  try {
+    QUALIFIED_IDS = compute32Qualifiers();
+    KNOCKOUT_STATUS = computeKnockoutStatus(QUALIFIED_IDS);
+  } catch (e) {
+    console.error("Error calculando clasificados/eliminatorias:", e);
+    QUALIFIED_IDS = [];
+    KNOCKOUT_STATUS = {};
+  }
+}
+
+// Carga síncrona del respaldo manual (results.js). Deja la app utilizable de
+// inmediato, sin esperar a la API en vivo (que es lenta).
+function applyManualResults() {
   EFFECTIVE_RESULTS = {};
   for (const n in RESULTS) {
     EFFECTIVE_RESULTS[n] = { ...RESULTS[n] };
   }
+  liveGamesOk = false;
+  liveGroupsOk = false;
+  LIVE_GROUPS = null;
+  recomputeStandings();
+}
 
+// Trae datos en vivo (worldcup26.ir) y los fusiona sobre EFFECTIVE_RESULTS.
+// Se llama en segundo plano tras el primer render. Devuelve true si llegaron
+// datos en vivo (para re-renderizar). Nunca lanza.
+async function loadLiveResults() {
   const [liveGames, liveGroups] = await Promise.all([fetchLiveGames(), fetchLiveGroups()]);
 
   liveGamesOk = Array.isArray(liveGames);
@@ -395,19 +427,10 @@ async function loadResults() {
   }
 
   liveGroupsOk = !!liveGroups;
-  GROUP_STANDINGS = {};
-  Object.keys(GROUPS).forEach(g => {
-    GROUP_STANDINGS[g] = (liveGroupsOk && liveGroups[g]) ? liveGroups[g] : computeGroupStandings(g);
-  });
+  LIVE_GROUPS = liveGroups || null;
+  recomputeStandings();
 
-  try {
-    QUALIFIED_IDS = compute32Qualifiers();
-    KNOCKOUT_STATUS = computeKnockoutStatus(QUALIFIED_IDS);
-  } catch (e) {
-    console.error("Error calculando clasificados/eliminatorias:", e);
-    QUALIFIED_IDS = [];
-    KNOCKOUT_STATUS = {};
-  }
+  return liveGamesOk || liveGroupsOk;
 }
 
 // Tabla de grupo calculada desde EFFECTIVE_RESULTS (respaldo si falla la API).
@@ -757,6 +780,20 @@ function initNavigation() {
     if (targetLink) targetLink.click();
   } else {
     renderDashboard();
+  }
+}
+
+// Re-renderiza la vista actualmente activa (tras llegar datos en vivo, etc.)
+function renderActiveView() {
+  const active = document.querySelector(".view-section.active");
+  if (!active) return;
+  switch (active.id) {
+    case "view-dashboard": renderDashboard(); break;
+    case "view-matches": renderMatchesPage(); break;
+    case "view-standings": renderStandingsPage(); break;
+    case "view-prizes": renderPrizesPage(); break;
+    case "view-participants": renderParticipantsPage(); break;
+    case "view-rules": renderRulesKatex(); break;
   }
 }
 
@@ -1620,11 +1657,16 @@ function renderParticipantsPage() {
 // ==========================================================================
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 1) Carga rápida: participantes + respaldo manual. La app ya queda usable.
   try {
     await loadParticipants();
-    await loadResults();
   } catch (e) {
-    console.error("Error cargando datos iniciales:", e);
+    console.error("Error cargando participantes:", e);
+  }
+  try {
+    applyManualResults();
+  } catch (e) {
+    console.error("Error aplicando resultados manuales:", e);
   }
 
   initNavigation();
@@ -1636,6 +1678,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   gsap.from(".dash-hero-rooster", { x: 80, opacity: 0, duration: 1, delay: 0.5, ease: "power3.out" });
 
   requestAnimationFrame(() => initScrollAnimations());
+
+  // 2) En segundo plano: datos en vivo (worldcup26.ir es lento, ~10-12s).
+  //    Cuando lleguen, se fusionan y se re-renderiza la vista activa.
+  loadLiveResults()
+    .then(changed => {
+      if (changed) {
+        renderActiveView();
+        showToast("Resultados en vivo actualizados", "success");
+      }
+    })
+    .catch(e => console.error("Error cargando datos en vivo:", e));
 
   // -----------------------------------------------------------
   // Hero CTAs navigation
