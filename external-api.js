@@ -85,14 +85,17 @@ async function fetchJsonSafe(path) {
 }
 
 // Resultados y emparejamientos en vivo. Devuelve un array de entradas
-// normalizadas o null si falla. Cada entrada: { n, home?, away?, homeScore?, awayScore? }
-// - Partidos de grupos: solo se incluyen si finished === true, con homeScore/awayScore.
+// normalizadas o null si falla. Cada entrada: { n, home?, away?, homeScore?, awayScore?, live }
+// - live === true indica partido jugándose ahora (time_elapsed === "live"): el
+//   marcador es parcial, no final. Quien llama debe tratarlo como "en vivo", no
+//   como resultado definitivo.
+// - Partidos de grupos: se incluyen si están terminados o en vivo, con marcador.
 // - Eliminatorias (type !== "group"): el "id" del partido en la API coincide con
 //   el "n" de matches.js (numeración oficial 1-104). Antes de que el cruce de
 //   llaves se resuelva oficialmente, home_team_id/away_team_id vienen en "0"
 //   (se descartan). En cuanto la API asigna los equipos del cruce (aunque el
 //   partido no se haya jugado), se incluyen home/away ya resueltos a nuestros
-//   slugs; homeScore/awayScore solo si finished === true.
+//   slugs; homeScore/awayScore solo si terminado o en vivo.
 async function fetchLiveGames() {
   const data = await fetchJsonSafe("/get/games");
   if (!data || !Array.isArray(data.games)) return null;
@@ -101,13 +104,17 @@ async function fetchLiveGames() {
 
   data.games.forEach(game => {
     const finished = String(game.finished).toUpperCase() === "TRUE";
+    const isLive = String(game.time_elapsed).toLowerCase() === "live";
     const homeScore = Number(game.home_score);
     const awayScore = Number(game.away_score);
+    const hasScore = Number.isFinite(homeScore) && Number.isFinite(awayScore);
     const homeSlug = EXTERNAL_TEAM_ID_MAP[Number(game.home_team_id)];
     const awaySlug = EXTERNAL_TEAM_ID_MAP[Number(game.away_team_id)];
 
     if (game.type === "group") {
-      if (!finished || !Number.isFinite(homeScore) || !Number.isFinite(awayScore)) return;
+      // Solo interesan partidos terminados o jugándose, con marcador numérico.
+      if (!finished && !isLive) return;
+      if (!hasScore) return;
       if (!homeSlug || !awaySlug) return;
 
       const match = MATCHES.find(m =>
@@ -121,19 +128,22 @@ async function fetchLiveGames() {
       out.push({
         n: match.n,
         homeScore: flipped ? awayScore : homeScore,
-        awayScore: flipped ? homeScore : awayScore
+        awayScore: flipped ? homeScore : awayScore,
+        live: isLive && !finished
       });
     } else {
       if (!homeSlug || !awaySlug) return;
       const n = Number(game.id);
       if (!Number.isInteger(n)) return;
 
+      const played = (finished || isLive) && hasScore;
       out.push({
         n,
         home: homeSlug,
         away: awaySlug,
-        homeScore: (finished && Number.isFinite(homeScore)) ? homeScore : null,
-        awayScore: (finished && Number.isFinite(awayScore)) ? awayScore : null
+        homeScore: played ? homeScore : null,
+        awayScore: played ? awayScore : null,
+        live: isLive && !finished
       });
     }
   });

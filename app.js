@@ -162,6 +162,9 @@ function dataSourceIndicator(ok, label) {
 // SCROLL ANIMATIONS (GSAP ScrollTrigger)
 // ==========================================================================
 
+let _revealSafetyTimer = null;
+let _scrollRefreshBound = false;
+
 function initScrollAnimations() {
   if (!window.ScrollTrigger) return;
   gsap.registerPlugin(ScrollTrigger);
@@ -303,6 +306,30 @@ function initScrollAnimations() {
       }
     });
   });
+
+  // Los avatares y el CSS de banderas cargan async y desplazan el layout, lo que
+  // dejaba posiciones de ScrollTrigger obsoletas y elementos atascados en
+  // opacity:0 (p. ej. "el dashboard a veces no carga"). Refrescamos al asentar
+  // el layout, en window.load, y dejamos una red de seguridad que fuerza la
+  // visibilidad de cualquier elemento revelado que haya quedado invisible.
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+  if (!_scrollRefreshBound) {
+    _scrollRefreshBound = true;
+    window.addEventListener("load", () => ScrollTrigger.refresh());
+  }
+  clearTimeout(_revealSafetyTimer);
+  _revealSafetyTimer = setTimeout(() => {
+    document.querySelectorAll(
+      ".view-section.active .panel, .view-section.active .data-table tbody tr, " +
+      ".view-section.active .participant-card, .view-section.active .prize-card-mini, " +
+      ".view-section.active .section-header"
+    ).forEach(el => {
+      if (parseFloat(getComputedStyle(el).opacity) < 0.05) {
+        gsap.set(el, { clearProps: "opacity,transform" });
+        el.style.opacity = "1";
+      }
+    });
+  }, 1500);
 }
 
 // ==========================================================================
@@ -375,6 +402,9 @@ function getTeamOwners(teamId) {
 
 // Tablas de grupo en vivo ya parseadas (worldcup26.ir), o null si no hay/falló.
 let LIVE_GROUPS = null;
+// Marcadores parciales de partidos jugándose ahora: n -> { homeScore, awayScore }.
+// Se mantienen aparte de EFFECTIVE_RESULTS para no marcarlos como finalizados.
+let LIVE_SCORES = {};
 
 // Recalcula GROUP_STANDINGS / QUALIFIED_IDS / KNOCKOUT_STATUS con el estado
 // actual de EFFECTIVE_RESULTS y LIVE_GROUPS. Usa la tabla en vivo si está, si
@@ -405,6 +435,7 @@ function applyManualResults() {
   liveGamesOk = false;
   liveGroupsOk = false;
   LIVE_GROUPS = null;
+  LIVE_SCORES = {};
   recomputeStandings();
 }
 
@@ -415,14 +446,22 @@ async function loadLiveResults() {
   const [liveGames, liveGroups] = await Promise.all([fetchLiveGames(), fetchLiveGroups()]);
 
   liveGamesOk = Array.isArray(liveGames);
+  LIVE_SCORES = {};
   if (liveGamesOk) {
     liveGames.forEach(g => {
       if (!EFFECTIVE_RESULTS[g.n]) EFFECTIVE_RESULTS[g.n] = {};
       const r = EFFECTIVE_RESULTS[g.n];
       if (g.home) r.home = g.home;
       if (g.away) r.away = g.away;
-      if (g.homeScore != null) r.homeScore = g.homeScore;
-      if (g.awayScore != null) r.awayScore = g.awayScore;
+      if (g.live) {
+        // Marcador parcial: no toca el resultado final, va a LIVE_SCORES.
+        if (g.homeScore != null && g.awayScore != null) {
+          LIVE_SCORES[g.n] = { homeScore: g.homeScore, awayScore: g.awayScore };
+        }
+      } else {
+        if (g.homeScore != null) r.homeScore = g.homeScore;
+        if (g.awayScore != null) r.awayScore = g.awayScore;
+      }
     });
   }
 
@@ -784,17 +823,43 @@ function initNavigation() {
 }
 
 // Re-renderiza la vista actualmente activa (tras llegar datos en vivo, etc.)
-function renderActiveView() {
+// silent=true omite las animaciones de entrada (refrescos automáticos).
+function renderActiveView(silent = false) {
   const active = document.querySelector(".view-section.active");
   if (!active) return;
-  switch (active.id) {
-    case "view-dashboard": renderDashboard(); break;
-    case "view-matches": renderMatchesPage(); break;
-    case "view-standings": renderStandingsPage(); break;
-    case "view-prizes": renderPrizesPage(); break;
-    case "view-participants": renderParticipantsPage(); break;
-    case "view-rules": renderRulesKatex(); break;
+  silentRender = silent;
+  try {
+    switch (active.id) {
+      case "view-dashboard": renderDashboard(); break;
+      case "view-matches": renderMatchesPage(); break;
+      case "view-standings": renderStandingsPage(); break;
+      case "view-prizes": renderPrizesPage(); break;
+      case "view-participants": renderParticipantsPage(); break;
+      case "view-rules": renderRulesKatex(); break;
+    }
+  } finally {
+    silentRender = false;
   }
+}
+
+// Refresco periódico de datos en vivo (cada 30s). Evita peticiones solapadas
+// (la API tarda ~10-12s) y re-renderiza en silencio si hubo datos nuevos.
+let livePollInterval = null;
+let livePollInFlight = false;
+function startLivePolling() {
+  if (livePollInterval) return;
+  livePollInterval = setInterval(async () => {
+    if (livePollInFlight) return;
+    livePollInFlight = true;
+    try {
+      const changed = await loadLiveResults();
+      if (changed) renderActiveView(true);
+    } catch (e) {
+      console.error("Error en refresco en vivo:", e);
+    } finally {
+      livePollInFlight = false;
+    }
+  }, 30000);
 }
 
 // ==========================================================================
@@ -879,6 +944,8 @@ function renderDashboard() {
 
 let matchFilter = "proximos";
 let matchCountdownInterval = null;
+// true durante un re-render por refresco automático (omite animaciones de entrada).
+let silentRender = false;
 
 // Fecha/hora del partido en zona horaria de Colombia
 function formatMatchDateCO(iso) {
@@ -917,6 +984,9 @@ function dayLabelCO(iso) {
 function getMatchState(match, now = Date.now()) {
   const r = EFFECTIVE_RESULTS[match.n];
   if (r && r.homeScore != null && r.awayScore != null) return "finished";
+
+  // La API marca el partido jugándose ahora (independiente de la estimación de hora).
+  if (LIVE_SCORES[match.n]) return "live";
 
   const start = new Date(match.kickoff).getTime();
   const end = start + 115 * 60000; // ~115 min de duración estimada
@@ -964,10 +1034,16 @@ function renderMatchSide(teamId, big = false) {
     const participant = PARTICIPANTS.find(p => p.name === owners[0].owner);
     ownerHtml = `<div class="vs-owner">${renderAvatar(participant, avSize)}<span class="vs-owner-name">${owners[0].owner}</span></div>`;
   } else {
-    ownerHtml = `<div class="vs-owner-multi">${owners.map(o => {
+    // Copropiedad en el hero: fotos solapadas + nombres "X y Y"
+    const names = owners.map(o => o.owner).join(" y ");
+    const stack = owners.map(o => {
       const participant = PARTICIPANTS.find(p => p.name === o.owner);
-      return `<div class="vs-owner">${renderAvatar(participant, avSize)}<span class="vs-owner-name">${o.owner}</span></div>`;
-    }).join("")}</div>`;
+      return renderAvatar(participant, avSize, `${o.owner} (${Math.round(o.share * 100)}%)`);
+    }).join("");
+    ownerHtml = `<div class="vs-owner">
+      <div class="vs-owner-stack hero-owner-stack">${stack}</div>
+      <span class="vs-owner-name">${names}</span>
+    </div>`;
   }
 
   return `<div class="vs-team${big ? " big" : ""}" style="--tc:${team.color}">
@@ -998,9 +1074,12 @@ function renderMatchCard(match) {
     : st === "finished" ? `<span class="match-state finished">Finalizado</span>`
     : "";
 
+  const live = st === "live" ? LIVE_SCORES[match.n] : null;
   const showScore = st === "finished" && r && r.homeScore != null && r.awayScore != null;
   const centerContent = showScore
     ? `<div class="vs-badge score">${r.homeScore} - ${r.awayScore}</div>`
+    : live
+    ? `<div class="vs-badge score live-score">${live.homeScore} - ${live.awayScore}</div>`
     : `<div class="vs-badge">VS</div>`;
 
   return `
@@ -1052,7 +1131,7 @@ function renderNextMatchHero(match) {
         ${renderMatchSide(homeId, true)}
         <div class="next-center">
           <div class="next-countdown" id="next-countdown">—</div>
-          <div class="next-vs">VS</div>
+          <div class="next-vs" id="next-vs">VS</div>
           <div class="next-datetime">
             <strong>${hora}</strong>
             <span>${fecha} · hora COL 🇨🇴</span>
@@ -1066,19 +1145,31 @@ function renderNextMatchHero(match) {
     </div>
   `;
 
-  // Countdown en vivo
+  // Countdown / marcador en vivo
   if (matchCountdownInterval) clearInterval(matchCountdownInterval);
   const cdEl = document.getElementById("next-countdown");
+  const vsEl = document.getElementById("next-vs");
   const tick = () => {
     const ms = new Date(match.kickoff).getTime() - Date.now();
     const st2 = getMatchState(match);
     if (st2 === "live") {
-      cdEl.innerHTML = `<span class="cd-live">● EN JUEGO</span>`;
+      cdEl.innerHTML = `<span class="cd-live">● EN VIVO</span>`;
+      const ls = LIVE_SCORES[match.n];
+      if (vsEl) {
+        vsEl.textContent = ls ? `${ls.homeScore} - ${ls.awayScore}` : "VS";
+        vsEl.classList.toggle("live-score", !!ls);
+      }
     } else if (st2 === "finished") {
       cdEl.textContent = "Finalizado";
+      const fr = EFFECTIVE_RESULTS[match.n];
+      if (vsEl && fr && fr.homeScore != null) {
+        vsEl.textContent = `${fr.homeScore} - ${fr.awayScore}`;
+        vsEl.classList.remove("live-score");
+      }
       clearInterval(matchCountdownInterval);
     } else {
       cdEl.textContent = formatCountdown(ms) || "¡Ya!";
+      if (vsEl) { vsEl.textContent = "VS"; vsEl.classList.remove("live-score"); }
     }
   };
   tick();
@@ -1155,8 +1246,8 @@ function renderMatchesPage() {
   });
   list.innerHTML = html;
 
-  // Animación de entrada en cascada
-  if (window.gsap) {
+  // Animación de entrada en cascada (se omite en refrescos automáticos)
+  if (window.gsap && !silentRender) {
     gsap.from("#matches-list .match-card", {
       opacity: 0, y: 24, duration: 0.4, stagger: 0.04, ease: "power2.out"
     });
@@ -1688,7 +1779,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast("Resultados en vivo actualizados", "success");
       }
     })
-    .catch(e => console.error("Error cargando datos en vivo:", e));
+    .catch(e => console.error("Error cargando datos en vivo:", e))
+    .finally(() => startLivePolling());
 
   // -----------------------------------------------------------
   // Hero CTAs navigation
