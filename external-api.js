@@ -138,8 +138,13 @@ async function fetchLiveGames() {
   return out;
 }
 
-// Tablas de grupo en vivo (ya ordenadas con tiebreakers oficiales por la API).
-// Devuelve { A: [{teamId, mp, w, d, l, pts, gf, ga, gd}, ...], B: [...], ... } o null si falla.
+// Tablas de grupo en vivo. Devuelve { A: [{teamId, mp, w, d, l, pts, gf, ga, gd}, ...],
+// B: [...], ... } o null si falla.
+//
+// IMPORTANTE: la API NO devuelve los equipos ordenados por la tabla (vienen en
+// orden de siembra/bombo), así que SIEMPRE los reordenamos nosotros por
+// Pts -> DG -> GF. No confiar en el orden de la API: standings[0]/[1] se usan
+// para definir clasificados y premios, un orden errado falsea los cálculos.
 async function fetchLiveGroups() {
   const data = await fetchJsonSafe("/get/groups");
   if (!data || !Array.isArray(data.groups)) return null;
@@ -160,6 +165,7 @@ async function fetchLiveGroups() {
       teams.push({ teamId: slug, mp, w, d, l, pts, gf, ga, gd });
     }
 
+    teams.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
     out[group.name] = teams;
   }
 

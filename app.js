@@ -62,14 +62,15 @@ function playerColorClass(name) {
 
 // Render del avatar de un participante: foto del CSV o iniciales con color.
 // Si la foto no carga (placeholder ausente), cae a las iniciales.
-function renderAvatar(participant, size = "") {
+function renderAvatar(participant, size = "", title = "") {
   const sizeClass = size ? " " + size : "";
+  const titleAttr = title ? ` title="${title}"` : "";
   const colorCls = playerColorClass(participant && participant.name);
   const initials = playerInitials(participant && participant.name);
   if (participant && participant.photo) {
-    return `<span class="player-avatar has-photo${sizeClass}"><img src="${participant.photo}" alt="" class="avatar-img" onerror="const s=this.parentElement;s.classList.remove('has-photo');s.classList.add('${colorCls}');s.textContent='${initials}';"></span>`;
+    return `<span class="player-avatar has-photo${sizeClass}"${titleAttr}><img src="${participant.photo}" alt="" class="avatar-img" onerror="const s=this.parentElement;s.classList.remove('has-photo');s.classList.add('${colorCls}');s.textContent='${initials}';"></span>`;
   }
-  return `<span class="player-avatar ${colorCls}${sizeClass}">${initials}</span>`;
+  return `<span class="player-avatar ${colorCls}${sizeClass}"${titleAttr}>${initials}</span>`;
 }
 
 // Toast notification helper -- reemplaza alerts del navegador
@@ -1142,14 +1143,12 @@ function renderStandingsPage() {
         const owners = getTeamOwners(t.teamId);
         let ownersHtml;
         if (owners.length === 0) {
-          ownersHtml = `<span class="vs-owner none"><i class="fa-solid fa-circle-question"></i> Sin dueño</span>`;
-        } else if (owners.length === 1) {
-          const participant = PARTICIPANTS.find(p => p.name === owners[0].owner);
-          ownersHtml = `<div class="vs-owner">${renderAvatar(participant, "sm")}<span class="vs-owner-name">${owners[0].owner}</span></div>`;
+          ownersHtml = `<span class="vs-owner none" title="Sin dueño"><i class="fa-solid fa-circle-question"></i></span>`;
         } else {
-          ownersHtml = `<div class="vs-owner-multi">${owners.map(o => {
+          ownersHtml = `<div class="vs-owner-stack standings-owner-stack">${owners.map(o => {
             const participant = PARTICIPANTS.find(p => p.name === o.owner);
-            return `<div class="vs-owner">${renderAvatar(participant, "sm")}<span class="vs-owner-name">${o.owner} (${Math.round(o.share * 100)}%)</span></div>`;
+            const title = owners.length > 1 ? `${o.owner} (${Math.round(o.share * 100)}%)` : o.owner;
+            return renderAvatar(participant, "sm", title);
           }).join("")}</div>`;
         }
         return `

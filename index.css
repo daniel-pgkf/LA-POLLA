@@ -1802,6 +1802,14 @@ select {
 .vs-owner-stack .player-avatar + .player-avatar {
   margin-left: -18px;
 }
+/* En la tabla de posiciones: stack compacto, sin margen superior ni centrado */
+.standings-owner-stack {
+  margin-top: 0;
+  justify-content: flex-start;
+}
+.standings-owner-stack .player-avatar + .player-avatar {
+  margin-left: -10px;
+}
 
 .vs-center {
   display: flex;
